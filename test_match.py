@@ -20,9 +20,16 @@ def call(*args, **kwargs):
     tuple.
 
     """
+    input = kwargs.get('input')
+    encoding = kwargs.get('encoding', 'utf-8')
     command = (sys.executable, os.path.join(HERE, 'match.py')) + args
     p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate(kwargs.get('input'))
+    if encoding and input is not None:
+        input = input.encode(encoding)
+    out, err = p.communicate(input)
+    if encoding:
+        out = out.decode(encoding)
+        err = err.decode(encoding)
     return out, err, p.returncode
 
 
@@ -33,8 +40,8 @@ def test_basic(tmpdir):
 
     """
     tmpdir.chdir()
-    tmpdir.join('one').write('one\n')
-    tmpdir.join('two').write('two\n')
+    tmpdir.join('one').write(b'one\n', 'wb')
+    tmpdir.join('two').write(b'two\n', 'wb')
     assert call('o', input='zero\n') == ('zero\n', '', 0)
     assert call('o', 'one', input='zero\n') == ('one\n', '', 0)
     assert call('o', 'one', 'two') == ('one\ntwo\n', '', 0)
