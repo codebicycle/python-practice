@@ -66,3 +66,15 @@ def test_status(tmpdir):
     assert out == ''
     assert status == 2
 
+
+def test_newlines(tmpdir):
+    """Lines are terminated by a line feed character ('\n'). If the last line
+    to be output does not end in a newline, append one. If there are no lines
+    (i.e. zero bytes), don't output anything.
+
+    """
+    assert call('t', input='one\ntwo\r\nthree\n') == ('two\r\nthree\n', '', 0)
+    assert call('', input='one') == ('one\n', '', 0)
+    assert call('', input='\n') == ('\n', '', 0)
+    assert call('') == ('', '', 1)
+
