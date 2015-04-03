@@ -21,7 +21,7 @@ def call(*args, **kwargs):
 
     """
     command = (sys.executable, os.path.join(HERE, 'match.py')) + args
-    p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate(kwargs.get('input'))
     return out, err, p.returncode
 
