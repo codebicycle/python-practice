@@ -78,3 +78,14 @@ def test_newlines(tmpdir):
     assert call('', input='\n') == ('\n', '', 0)
     assert call('') == ('', '', 1)
 
+
+def test_only_matching():
+    """`-o/--only-matching`: print only the matched (non-empty) parts of
+    a matching line, with each such part on a separate output line.
+
+    """
+    assert call('-o', '' input='zero') == ('', '', 0)
+    assert call('-o', 'e', input='one') == ('e\n', '', 0)
+    assert call('-o', 'e', input='two') == ('', '', 1)
+    assert call('-o', 'e', input='three') == ('e\ne\n', '', 0)
+
