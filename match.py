@@ -12,10 +12,12 @@ if __name__ == "__main__":
     filenames = sys.argv[2:]
 
     if len(filenames) < 1:
-        line = input()
-        if patern in line:
-            print(line)
-        else:
+        match = False
+        for line in sys.stdin:
+            if patern in line:
+                match = True
+                print(line.rstrip('\n'))
+        if not match:
             exit(1)
     else:
         match = False
