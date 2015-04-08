@@ -84,7 +84,7 @@ def test_only_matching():
     a matching line, with each such part on a separate output line.
 
     """
-    assert call('-o', '' input='zero') == ('', '', 0)
+    assert call('-o', '', input='zero') == ('', '', 0)
     assert call('-o', 'e', input='one') == ('e\n', '', 0)
     assert call('-o', 'e', input='two') == ('', '', 1)
     assert call('-o', 'e', input='three') == ('e\ne\n', '', 0)
