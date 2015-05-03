@@ -44,7 +44,8 @@ def test_basic(tmpdir):
     tmpdir.join('two').write(b'two\n', 'wb')
     assert call('o', input='zero\n') == ('zero\n', '', 0)
     assert call('o', 'one', input='zero\n') == ('one\n', '', 0)
-    assert call('o', 'one', 'two') == ('one\ntwo\n', '', 0)
+    # prefix output lines with the file name when working with multiple files
+    assert call('o', 'one', 'two') == ('one:one\ntwo:two\n', '', 0)
     assert call('e', input='ONE') == ('', '', 1)
     assert call('E', input='one') == ('', '', 1)
 
@@ -141,4 +142,16 @@ def test_regexp(tmpdir):
     tmpdir.chdir()
     tmpdir.join('e').write('three')
     assert call('e', '-e', 'e', input='one') == ('three\n', '', 0)
+
+
+def test_no_filename(tmpdir):
+    """`-h`, `--no-filename`: suppress the prefixing of file names on output.
+    This is the default when there is only one file (or only standard input)
+    to search.
+
+    """
+    tmpdir.chdir()
+    tmpdir.join('one').write(b'one\n', 'wb')
+    tmpdir.join('two').write(b'two\n', 'wb')
+    assert call('-h', 'o', 'one', 'two') == ('one\ntwo\n', '', 0)
 
