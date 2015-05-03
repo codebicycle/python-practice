@@ -127,3 +127,18 @@ def test_ignore_case():
     assert call('-i', 'E', input='ONE') == ('ONE\n', '', 0)
     assert call('-i', 'e', input='two') == ('', '', 1)
 
+
+def test_regexp(tmpdir):
+    """`-e PATTERN`, `--regexp=PATTERN`: use PATTERN as the pattern. This
+    can be used to specify multiple search patterns, or to protect a pattern
+    beginning with a hyphen (-).
+
+    """
+    assert call('-e', '-o', input='-one') == ('-one\n', '', 0)
+    assert call('-o', '-e', 'e', '-e', 'o', input='one') == ('o\ne\n', '', 0)
+
+    # when -e is used, all arguments are FILE(s) (there's no PATTERN)
+    tmpdir.chdir()
+    tmpdir.join('e').write('three')
+    assert call('e', '-e', 'e', input='one') == ('three\n', '', 0)
+
