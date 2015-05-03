@@ -45,6 +45,8 @@ def test_basic(tmpdir):
     assert call('o', input='zero\n') == ('zero\n', '', 0)
     assert call('o', 'one', input='zero\n') == ('one\n', '', 0)
     assert call('o', 'one', 'two') == ('one\ntwo\n', '', 0)
+    assert call('e', input='ONE') == ('', '', 1)
+    assert call('E', input='one') == ('', '', 1)
 
 
 def test_status(tmpdir):
