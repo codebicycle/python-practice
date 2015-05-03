@@ -92,7 +92,7 @@ def test_no_encoding(tmpdir):
 
 
 def test_only_matching():
-    """`-o/--only-matching`: print only the matched (non-empty) parts of
+    """`-o`, `--only-matching`: print only the matched (non-empty) parts of
     a matching line, with each such part on a separate output line.
 
     """
@@ -100,4 +100,28 @@ def test_only_matching():
     assert call('-o', 'e', input='one') == ('e\n', '', 0)
     assert call('-o', 'e', input='two') == ('', '', 1)
     assert call('-o', 'e', input='three') == ('e\ne\n', '', 0)
+
+
+def test_invert_match():
+    """`-v`, `--invert-match`: invert the sense of matching, to select
+    non-matching lines.
+
+    """
+    assert call('-v', '', input='zero') == ('', '', 1)
+    assert call('-v', 'e', input='one') == ('', '', 1)
+    assert call('-v', 'e', input='two') == ('two\n', '', 0)
+    assert call('-v', 'e', input='one\ntwo\n') == ('two\n', '', 0)
+
+
+def test_ignore_case():
+    """`-i`, `--ignore-case`: ignore case distinctions in both the PATTERN
+    and the input files.
+
+    """
+    assert call('-i', '', input='zero') == ('zero\n', '', 0)
+    assert call('-i', 'e', input='one') == ('one\n', '', 0)
+    assert call('-i', 'e', input='ONE') == ('ONE\n', '', 0)
+    assert call('-i', 'E', input='one') == ('one\n', '', 0)
+    assert call('-i', 'E', input='ONE') == ('ONE\n', '', 0)
+    assert call('-i', 'e', input='two') == ('', '', 1)
 
