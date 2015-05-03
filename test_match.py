@@ -68,7 +68,7 @@ def test_status(tmpdir):
 
 
 def test_newlines(tmpdir):
-    """Lines are terminated by a line feed character ('\n'). If the last line
+    """Lines are terminated by a line feed character ('\\n'). If the last line
     to be output does not end in a newline, append one. If there are no lines
     (i.e. zero bytes), don't output anything.
 
@@ -77,6 +77,18 @@ def test_newlines(tmpdir):
     assert call('', input='one') == ('one\n', '', 0)
     assert call('', input='\n') == ('\n', '', 0)
     assert call('') == ('', '', 1)
+
+
+def test_no_encoding(tmpdir):
+    """match.py is not encoding-aware; it operates on binary data (bytes in,
+    bytes out).
+
+    """
+    ae_bytes = 'aeæ\n'.encode('latin-1')
+    tmpdir.chdir()
+    tmpdir.join('one').write(ae_bytes, 'wb')
+    assert call('a', input=ae_bytes, encoding=None) == (ae_bytes, b'', 0)
+    assert call('a', 'one', encoding=None) == (ae_bytes, b'', 0)
 
 
 def test_only_matching():
