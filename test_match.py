@@ -7,33 +7,8 @@ See the docstring of each test_* function for specific requirements.
 
 """
 
-from subprocess import Popen, PIPE
-import os.path
-import sys
 
-HERE = os.path.dirname(__file__)
-
-
-def call(*args, input=None, encoding='utf-8', command=None):
-    """Call match.py with the arguments in args. If the input keyword argument
-    is given, send it to stdin. Return a (stdoutdata, stderrdata, returncode)
-    tuple.
-
-    """
-    if not command:
-        command = (sys.executable, os.path.join(HERE, 'match.py'))
-    command = command + args
-    p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    if encoding and input is not None:
-        input = input.encode(encoding)
-    out, err = p.communicate(input)
-    if encoding:
-        out = out.decode(encoding)
-        err = err.decode(encoding)
-    return out, err, p.returncode
-
-
-def test_basic(tmpdir):
+def test_basic(call, tmpdir):
     """Search the named input FILEs (or standard input if no files are named)
     for lines matching the given PATTERN (substring match). By default, print
     the matching lines.
@@ -50,7 +25,7 @@ def test_basic(tmpdir):
     assert call('E', input='one') == ('', '', 1)
 
 
-def test_status(tmpdir):
+def test_status(call, tmpdir):
     """Exit with status 0 if any matches are found and with 1 if not.
     Exit with status 2 in case of error.
 
@@ -70,7 +45,7 @@ def test_status(tmpdir):
     assert status == 2
 
 
-def test_newlines(tmpdir):
+def test_newlines(call, tmpdir):
     """Lines are terminated by a line feed character ('\\n'). If the last line
     to be output does not end in a newline, append one. If there are no lines
     (i.e. zero bytes), don't output anything.
@@ -82,7 +57,7 @@ def test_newlines(tmpdir):
     assert call('') == ('', '', 1)
 
 
-def test_no_encoding(tmpdir):
+def test_no_encoding(call, tmpdir):
     """match.py is not encoding-aware; it operates on binary data (bytes in,
     bytes out).
 
@@ -94,7 +69,7 @@ def test_no_encoding(tmpdir):
     assert call('a', 'one', encoding=None) == (ae_bytes, b'', 0)
 
 
-def test_only_matching():
+def test_only_matching(call):
     """`-o`, `--only-matching`: print only the matched (non-empty) parts of
     a matching line, with each such part on a separate output line.
 
@@ -105,7 +80,7 @@ def test_only_matching():
     assert call('-o', 'e', input='three') == ('e\ne\n', '', 0)
 
 
-def test_invert_match():
+def test_invert_match(call):
     """`-v`, `--invert-match`: invert the sense of matching, to select
     non-matching lines.
 
@@ -116,7 +91,7 @@ def test_invert_match():
     assert call('-v', 'e', input='one\ntwo\n') == ('two\n', '', 0)
 
 
-def test_ignore_case():
+def test_ignore_case(call):
     """`-i`, `--ignore-case`: ignore case distinctions in both the PATTERN
     and the input files.
 
@@ -129,7 +104,7 @@ def test_ignore_case():
     assert call('-i', 'e', input='two') == ('', '', 1)
 
 
-def test_regexp(tmpdir):
+def test_regexp(call, tmpdir):
     """`-e PATTERN`, `--regexp=PATTERN`: use PATTERN as the pattern. This
     can be used to specify multiple search patterns, or to protect a pattern
     beginning with a hyphen (-).
@@ -144,7 +119,7 @@ def test_regexp(tmpdir):
     assert call('e', '-e', 'e', input='one') == ('three\n', '', 0)
 
 
-def test_no_filename(tmpdir):
+def test_no_filename(call, tmpdir):
     """`-h`, `--no-filename`: suppress the prefixing of file names on output.
     This is the default when there is only one file (or only standard input)
     to search.
