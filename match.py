@@ -1,68 +1,63 @@
 #!/usr/bin/env python3
 
 import sys
-
-def opts_and_args(argv, supported_options):
-    args = argv[1:]
-    active_options = [opt for opt in supported_options if opt in args]
-
-    for opt in active_options:
-        while opt in args:
-            args.remove(opt)
-
-    return(active_options, args)
+import click
 
 
-def is_matched(pattern, file, output_cb):
+def iter_files(paths):
+    for path in paths:
+        try:
+            yield open(path, 'rb')
+        except (IOError, OSError) as e:
+            print("error: {}".format(e), file=sys.stderr)
+
+
+@click.command()
+@click.option(
+    '-o', '--only-matching', is_flag=True,
+    help=('Print only the matched (non-empty) parts of a matching line, '
+          'with each such part on a separate output line.')
+)
+@click.argument('pattern')
+@click.argument('file', nargs=-1, type=click.Path(exists=True))
+def main(pattern, file, **kwargs):
+    """Search for PATTERN in each FILE or standard input.
+
+    """
+    # print(kwargs)
+    # print('pattern:', pattern)
+    # print('file:', file)
+
+    def output():
+        if kwargs['only_matching']:
+            if not pattern:
+                return
+            out = b''
+            for i in range(line.count(pattern)):
+                out += pattern + b'\n'
+        else:
+            out = line.rstrip(b'\n') + b'\n'
+        sys.stdout.buffer.write(out)
+
+
+    pattern = pattern.encode('utf8')
+
+    if file:
+        files = iter_files(file)
+    else:
+        files = (sys.stdin.buffer,)
+
     matched = False
-    for line in file:
-        if pattern in line:
-            matched = True
-            output_cb(pattern, line)
-
-    return matched
-
-
-def default_output(pattern, line):
-    print(line.decode().rstrip('\n'))
-
-
-def only_matching_output(pattern, line):
-    if not pattern:
-        return
-    for i in range(line.count(pattern)):
-        print(pattern.decode())
+    for f in files:
+        for line in f:
+            if pattern in line:
+                output()
+                matched = True
+        f.close()
+    if not matched:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
 
-    SUPPORTED_OPTIONS = ['-o', '--only-matching']
-    options, args = opts_and_args(sys.argv, SUPPORTED_OPTIONS)
-
-    try:
-        pattern = args[0].encode('utf-8')
-    except IndexError:
-        exit(2)
-
-    filenames = args[1:]
-
-    if '-o' in options or '--only-matching' in options:
-      cb = only_matching_output
-    else:
-      cb = default_output
-
-    if len(filenames) < 1:
-        matched = is_matched(pattern, sys.stdin.buffer, cb)
-        if not matched:
-            exit(1)
-    else:
-        for filename in filenames:
-            try:
-                f = open(filename, mode="rb")
-            except OSError:
-                exit(2)
-            else:
-                with  f:
-                    matched = is_matched(pattern, f, cb)
-        if not matched:
-            exit(1)
+    main()
