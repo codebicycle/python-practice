@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import re
 import click
 
 
@@ -24,6 +25,10 @@ def iter_files(paths):
 @click.option(
     '-v', '--invert-match', is_flag=True,
     help=('select non-matching lines')
+)
+@click.option(
+    '-i', '--ignore-case', is_flag=True,
+    help=('ignore case distinctions')
 )
 @click.argument('pattern')
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
@@ -52,6 +57,7 @@ def main(pattern, file, **kwargs):
 
 
     pattern = pattern.encode('utf8')
+    flag = re.IGNORECASE if kwargs['ignore_case'] else 0
 
     if file:
         files = iter_files(file)
@@ -61,11 +67,12 @@ def main(pattern, file, **kwargs):
     matched = False
     for f in files:
         for line in f:
+            search = re.search(pattern, line, flag)
             if kwargs['invert_match']:
-                if pattern not in line:
+                if not search:
                     sys.stdout.buffer.write(line.rstrip(b'\n') + b'\n')
                     matched = True
-            elif pattern in line:
+            elif search:
                 output()
                 matched = True
         f.close()
