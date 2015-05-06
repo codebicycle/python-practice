@@ -44,7 +44,10 @@ def test_basic(tmpdir):
     tmpdir.join('two').write(b'two\n', 'wb')
     assert call('o', input='zero\n') == ('zero\n', '', 0)
     assert call('o', 'one', input='zero\n') == ('one\n', '', 0)
-    assert call('o', 'one', 'two') == ('one\ntwo\n', '', 0)
+    # prefix output lines with the file name when working with multiple files
+    assert call('o', 'one', 'two') == ('one:one\ntwo:two\n', '', 0)
+    assert call('e', input='ONE') == ('', '', 1)
+    assert call('E', input='one') == ('', '', 1)
 
 
 def test_status(tmpdir):
@@ -92,7 +95,7 @@ def test_no_encoding(tmpdir):
 
 
 def test_only_matching():
-    """`-o/--only-matching`: print only the matched (non-empty) parts of
+    """`-o`, `--only-matching`: print only the matched (non-empty) parts of
     a matching line, with each such part on a separate output line.
 
     """
@@ -100,4 +103,55 @@ def test_only_matching():
     assert call('-o', 'e', input='one') == ('e\n', '', 0)
     assert call('-o', 'e', input='two') == ('', '', 1)
     assert call('-o', 'e', input='three') == ('e\ne\n', '', 0)
+
+
+def test_invert_match():
+    """`-v`, `--invert-match`: invert the sense of matching, to select
+    non-matching lines.
+
+    """
+    assert call('-v', '', input='zero') == ('', '', 1)
+    assert call('-v', 'e', input='one') == ('', '', 1)
+    assert call('-v', 'e', input='two') == ('two\n', '', 0)
+    assert call('-v', 'e', input='one\ntwo\n') == ('two\n', '', 0)
+
+
+def test_ignore_case():
+    """`-i`, `--ignore-case`: ignore case distinctions in both the PATTERN
+    and the input files.
+
+    """
+    assert call('-i', '', input='zero') == ('zero\n', '', 0)
+    assert call('-i', 'e', input='one') == ('one\n', '', 0)
+    assert call('-i', 'e', input='ONE') == ('ONE\n', '', 0)
+    assert call('-i', 'E', input='one') == ('one\n', '', 0)
+    assert call('-i', 'E', input='ONE') == ('ONE\n', '', 0)
+    assert call('-i', 'e', input='two') == ('', '', 1)
+
+
+def test_regexp(tmpdir):
+    """`-e PATTERN`, `--regexp=PATTERN`: use PATTERN as the pattern. This
+    can be used to specify multiple search patterns, or to protect a pattern
+    beginning with a hyphen (-).
+
+    """
+    assert call('-e', '-o', input='-one') == ('-one\n', '', 0)
+    assert call('-o', '-e', 'e', '-e', 'o', input='one') == ('o\ne\n', '', 0)
+
+    # when -e is used, all arguments are FILE(s) (there's no PATTERN)
+    tmpdir.chdir()
+    tmpdir.join('e').write('three')
+    assert call('e', '-e', 'e', input='one') == ('three\n', '', 0)
+
+
+def test_no_filename(tmpdir):
+    """`-h`, `--no-filename`: suppress the prefixing of file names on output.
+    This is the default when there is only one file (or only standard input)
+    to search.
+
+    """
+    tmpdir.chdir()
+    tmpdir.join('one').write(b'one\n', 'wb')
+    tmpdir.join('two').write(b'two\n', 'wb')
+    assert call('-h', 'o', 'one', 'two') == ('one\ntwo\n', '', 0)
 
