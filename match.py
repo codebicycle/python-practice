@@ -29,14 +29,19 @@ def main(pattern, file, **kwargs):
     # print('file:', file)
 
     def output():
+        filename = b''
+        if len(file) > 1:
+            filename = '{}:'.format(f.name).encode('utf8')
+
         if kwargs['only_matching']:
             if not pattern:
                 return
             out = b''
             for i in range(line.count(pattern)):
-                out += pattern + b'\n'
+                out += filename + pattern + b'\n'
         else:
-            out = line.rstrip(b'\n') + b'\n'
+            out = filename + line.rstrip(b'\n') + b'\n'
+
         sys.stdout.buffer.write(out)
 
 
