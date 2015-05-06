@@ -24,9 +24,7 @@ def iter_files(paths):
 @click.argument('pattern')
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
 def main(pattern, file, **kwargs):
-    """Search for PATTERN in each FILE or standard input.
-
-    """
+    '''Search for PATTERN in each FILE or standard input.'''
     # print(kwargs)
     # print('pattern:', pattern)
     # print('file:', file)
