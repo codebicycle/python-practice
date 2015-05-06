@@ -14,15 +14,15 @@ import sys
 HERE = os.path.dirname(__file__)
 
 
-def call(*args, **kwargs):
+def call(*args, input=None, encoding='utf-8', command=None):
     """Call match.py with the arguments in args. If the input keyword argument
     is given, send it to stdin. Return a (stdoutdata, stderrdata, returncode)
     tuple.
 
     """
-    input = kwargs.get('input')
-    encoding = kwargs.get('encoding', 'utf-8')
-    command = (sys.executable, os.path.join(HERE, 'match.py')) + args
+    if not command:
+        command = (sys.executable, os.path.join(HERE, 'match.py'))
+    command = command + args
     p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     if encoding and input is not None:
         input = input.encode(encoding)
