@@ -15,8 +15,11 @@ def iter_files(paths):
 @click.command()
 @click.option(
     '-o', '--only-matching', is_flag=True,
-    help=('Print only the matched (non-empty) parts of a matching line, '
-          'with each such part on a separate output line.')
+    help=('show only the part of a line matching PATTERN')
+)
+@click.option(
+    '-h', '--no-filename', is_flag=True,
+    help=('suppress the file name prefix on output')
 )
 @click.argument('pattern')
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
@@ -29,8 +32,9 @@ def main(pattern, file, **kwargs):
     # print('file:', file)
 
     def output():
-        filename = b''
-        if len(file) > 1:
+        if kwargs['no_filename'] or len(file) <= 1:
+            filename = b''
+        else:
             filename = '{}:'.format(f.name).encode('utf8')
 
         if kwargs['only_matching']:
