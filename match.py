@@ -21,6 +21,10 @@ def iter_files(paths):
     '-h', '--no-filename', is_flag=True,
     help=('suppress the file name prefix on output')
 )
+@click.option(
+    '-v', '--invert-match', is_flag=True,
+    help=('select non-matching lines')
+)
 @click.argument('pattern')
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
 def main(pattern, file, **kwargs):
@@ -57,7 +61,11 @@ def main(pattern, file, **kwargs):
     matched = False
     for f in files:
         for line in f:
-            if pattern in line:
+            if kwargs['invert_match']:
+                if pattern not in line:
+                    sys.stdout.buffer.write(line.rstrip(b'\n') + b'\n')
+                    matched = True
+            elif pattern in line:
                 output()
                 matched = True
         f.close()
