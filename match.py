@@ -45,15 +45,13 @@ def main(pattern, file, **kwargs):
             filename = '{}:'.format(f.name).encode('utf8')
 
         if kwargs['only_matching']:
-            if not pattern:
-                return
-            out = b''
-            for i in range(line.count(pattern)):
-                out += filename + pattern + b'\n'
+            if pattern:
+                for m in re.findall(pattern, line, flag):
+                    out = filename + m + b'\n'
+                    sys.stdout.buffer.write(out)
         else:
             out = filename + line.rstrip(b'\n') + b'\n'
-
-        sys.stdout.buffer.write(out)
+            sys.stdout.buffer.write(out)
 
 
     pattern = pattern.encode('utf8')
@@ -67,12 +65,12 @@ def main(pattern, file, **kwargs):
     matched = False
     for f in files:
         for line in f:
-            search = re.search(pattern, line, flag)
+            match = re.search(pattern, line, flag)
             if kwargs['invert_match']:
-                if not search:
-                    sys.stdout.buffer.write(line.rstrip(b'\n') + b'\n')
+                if not match:
+                    output()
                     matched = True
-            elif search:
+            elif match:
                 output()
                 matched = True
         f.close()
