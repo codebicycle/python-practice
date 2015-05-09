@@ -13,29 +13,38 @@ def iter_files(paths):
             print("error: {}".format(e), file=sys.stderr)
 
 
-@click.command()
-@click.option(
-    '-o', '--only-matching', is_flag=True,
-    help=('show only the part of a line matching PATTERN')
-)
-@click.option(
-    '-h', '--no-filename', is_flag=True,
-    help=('suppress the file name prefix on output')
-)
-@click.option(
-    '-v', '--invert-match', is_flag=True,
-    help=('select non-matching lines')
-)
-@click.option(
-    '-i', '--ignore-case', is_flag=True,
-    help=('ignore case distinctions')
-)
-@click.option(
-    '-e', '--regexp',
-    help=('use PATTERN for matching')
-)
-@click.argument('pattern', required=False)
+def common_options(f):
+    @click.command()
+    @click.option(
+        '-e', '--regexp', multiple=True, metavar='PATTERN',
+        help=('use PATTERN for matching')
+    )
+    @click.option(
+        '-h', '--no-filename', is_flag=True,
+        help=('suppress the file name prefix on output')
+    )
+    @click.option(
+        '-i', '--ignore-case', is_flag=True,
+        help=('ignore case distinctions')
+    )
+    @click.option(
+        '-o', '--only-matching', is_flag=True,
+        help=('show only the part of a line matching PATTERN')
+    )
+    @click.option(
+        '-v', '--invert-match', is_flag=True,
+        help=('select non-matching lines')
+    )
+    def wrapper(**kwargs):
+        '''Search for PATTERN in each FILE or standard input.'''
+        f(**kwargs)
+
+    return wrapper
+
+
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
+@click.argument('pattern', required=False)
+@common_options
 def match(pattern, file, **kwargs):
     '''Search for PATTERN in each FILE or standard input.'''
     # print('match: pattern:', pattern)
@@ -48,28 +57,8 @@ def match(pattern, file, **kwargs):
         match_helper(pattern, file, **kwargs)
 
 
-@click.command()
-@click.option(
-    '-o', '--only-matching', is_flag=True,
-    help=('show only the part of a line matching PATTERN')
-)
-@click.option(
-    '-h', '--no-filename', is_flag=True,
-    help=('suppress the file name prefix on output')
-)
-@click.option(
-    '-v', '--invert-match', is_flag=True,
-    help=('select non-matching lines')
-)
-@click.option(
-    '-i', '--ignore-case', is_flag=True,
-    help=('ignore case distinctions')
-)
-@click.option(
-    '-e', '--regexp', multiple=True,
-    help=('use PATTERN for matching')
-)
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
+@common_options
 def match_regexp(file, **kwargs):
     # print('match-regexp: file:', file)
     # print('match-regexp: kwargs:', kwargs)
