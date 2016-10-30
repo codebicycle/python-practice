@@ -125,7 +125,7 @@ def match_helper(pattern, file, **kwargs):
         sys.exit(1)
 
 
-def main():
+def main(*args):
     match()
 
 
