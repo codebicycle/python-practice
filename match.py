@@ -3,6 +3,7 @@
 import sys
 import re
 import click
+from pprint import pprint
 
 
 def iter_files(paths):
@@ -47,9 +48,8 @@ def common_options(f):
 @common_options
 def match(pattern, file, **kwargs):
     '''Search for PATTERN in each FILE or standard input.'''
-    # print('match: pattern:', pattern)
-    # print('match: file:', file)
-    # print('match: kwargs:', kwargs)
+    # print('match:')
+    # pprint(locals())
 
     if kwargs['regexp']:
         match_regexp()
@@ -60,17 +60,16 @@ def match(pattern, file, **kwargs):
 @click.argument('file', nargs=-1, type=click.Path(exists=True))
 @common_options
 def match_regexp(file, **kwargs):
-    # print('match-regexp: file:', file)
-    # print('match-regexp: kwargs:', kwargs)
+    # print('match-regexp:')
+    # pprint(locals())
 
     pattern = kwargs['regexp']
     match_helper(pattern, file, **kwargs)
 
 
 def match_helper(pattern, file, **kwargs):
-    # print('match_helper: pattern:', pattern)
-    # print('match_helper: file:', file)
-    # print('match_helper: kwargs:', kwargs)
+    # print('match_helper:')
+    # pprint(locals())
 
     if pattern is None:
         sys.exit(2)
