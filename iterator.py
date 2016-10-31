@@ -21,6 +21,39 @@ https://docs.python.org/3.6/reference/expressions.html#generator-expressions
 
 """
 
+class SquareIterator:
+
+    def __init__(self, iterable):
+        self.iterable = iterable
+        self.position = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            item = self.iterable[self.position]
+        except IndexError:
+            raise StopIteration
+
+        self.position += 1
+        return item * item
+
+
+class FibIterator:
+
+    def __init__(self):
+        self.preprev = 0
+        self.prev    = 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        fib = self.prev
+        self.preprev, self.prev = self.prev, self.preprev + self.prev
+        return fib
+
 
 def squares_generator(numbers):
     """Given an iterable of numbers, return an iterator that returns their
@@ -47,6 +80,8 @@ def squares_iterator_protocol(numbers):
     # More specifically, return an object conforming to the iterator protocol
     # that is not a generator iterator.
 
+    return SquareIterator(numbers)
+
 
 def fibonacci_generator():
     """Return an iterator that returns all the Fibonacci numbers, forever."""
@@ -63,4 +98,4 @@ def fibonacci_iterator_protocol():
     # More specifically, return an object conforming to the iterator protocol
     # that is not a generator iterator.
 
-
+    return FibIterator()
