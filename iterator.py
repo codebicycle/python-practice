@@ -40,19 +40,19 @@ class SquareIterator:
         return item * item
 
 
-class FibIterator:
+class FibonacciIterator:
 
     def __init__(self):
-        self.preprev = 0
-        self.prev    = 1
+        self.a = 1
+        self.b = 1
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        fib = self.prev
-        self.preprev, self.prev = self.prev, self.preprev + self.prev
-        return fib
+        fibonacci = self.a
+        self.a, self.b = self.b, self.a + self.b
+        return fibonacci
 
 
 def squares_generator(numbers):
@@ -98,4 +98,4 @@ def fibonacci_iterator_protocol():
     # More specifically, return an object conforming to the iterator protocol
     # that is not a generator iterator.
 
-    return FibIterator()
+    return FibonacciIterator()
