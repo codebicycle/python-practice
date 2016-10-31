@@ -24,20 +24,13 @@ https://docs.python.org/3.6/reference/expressions.html#generator-expressions
 class SquareIterator:
 
     def __init__(self, iterable):
-        self.iterable = iterable
-        self.position = 0
+        self.iterator = iter(iterable)
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        try:
-            item = self.iterable[self.position]
-        except IndexError:
-            raise StopIteration
-
-        self.position += 1
-        return item * item
+        return next(self.iterator) ** 2
 
 
 class FibonacciIterator:
