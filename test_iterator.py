@@ -15,7 +15,7 @@ squares_implementations = [
 @pytest.mark.parametrize('squares', squares_implementations)
 def test_squares(squares):
     numbers = [1, 2, 3, 4, 5]
-    it = squares(numbers)
+    it = squares(iter(numbers))
 
     # Iterators are required to have an __iter__() method that returns the
     # iterator object itself so every iterator is also iterable and may be
